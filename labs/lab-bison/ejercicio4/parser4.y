@@ -35,7 +35,8 @@ input:
  *     | error '\n'  { yyerrok; printf("Error: sintaxis invalida\n"); }
  */
 linea:
-    exp '\n'    { printf("= %d\n", $1); }
+    exp '\n'     { printf("= %d\n", $1); }
+  | error '\n'   { yyerrok; printf("Error: sintaxis invalida\n"); }
   ;
 
 exp:
