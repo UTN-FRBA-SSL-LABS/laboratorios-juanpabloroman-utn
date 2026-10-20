@@ -277,7 +277,7 @@ Los tests de `IsEmpty` ya están activos en `StringTest.c`. Corré `make test` y
 
 **P1** — `IsEmpty` podría haberse escrito también como `return s[0] == '\0'`. ¿Son equivalentes? ¿Por qué?
 
-> R:
+> R: Sí, son equivalentes. En C, la sintaxis s[0] es azúcar sintáctico para *(s + 0), lo que es lo missmo que desreferenciar el puntero con *s. Las dos expresiones leen el primer carácter de la cadena.
 
 ---
 
@@ -328,14 +328,14 @@ make test
 
 **P2** — ¿Qué hace `s + 1`? ¿Por qué avanza al siguiente carácter y no al siguiente byte?
 
-> R:
+> R: s + 1 es aritmética de punteros. Avanza el puntero a la dirección de memoria del siguiente elemento (char). Dado que un char en C ocupa exactamente 1 byte, avanzar un carácter coincide con avanzar un byte. Sin embargo, en términos de tipos de C, el compilador sabe que debe desplazar la dirección en 1 * sizeof(char) posiciones.
 
 **P3** — Si llamaras a `GetLength(NULL)`, ¿qué pasaría? ¿Por qué las precondiciones del contrato dicen `s != NULL`?
 
-> R:
+> R: Si se pasa NULL, al intentar desreferenciar el puntero dentro de IsEmpty(s) (*s), el programa producirá una falla de segmentación (segmentation fault) y se detendrá abruptamente. Por eso la precondición s != NULL garantiza que el puntero apunte a una dirección de memoria válida antes de operar.
 
 ```
-GETLENGTH_PASA=
+GETLENGTH_PASA=SI
 ```
 _(escribí SI cuando todos los tests de GetLength pasen)_
 
@@ -367,7 +367,9 @@ El `while` termina cuando alguna de las dos cadenas llega a `'\0'`. Después dev
 
 **P4** — ¿Qué dos casos están mal cubiertos por `return 1`? Describí un ejemplo para cada uno.
 
-> R:
+> R:1.Cuando la primera cadena es un prefijo más corto que la segunda (ejemplo: s1 = "ab" y s2 = "abc"). El while se detiene porque s1 llegó a '\0', pero s2 aún no. Al hacer return 1, la función devuelve erróneamente que son iguales.
+
+2.Cuando la segunda cadena es un prefijo más corto que la primera (ejemplo: s1 = "abc" y s2 = "ab"). El while se detiene porque s2 llegó a '\0', mientras s1 aún continúa, retornando 1 erróneamente.
 
 #### Corrección
 
@@ -377,14 +379,14 @@ Reemplazá la última línea de `AreEqual` en `String.c`:
     return IsEmpty(s1) && IsEmpty(s2);
 ```
 
-Corré los tests:
+Corré los tests:SI
 
 ```bash
 make test
 ```
 
 ```
-AREEQUAL_PASA=
+AREEQUAL_PASA=SI
 ```
 _(escribí SI cuando todos los tests de AreEqual pasen)_
 
@@ -414,7 +416,7 @@ int AreDecimalDigits(const char *s) {
 
 **P5** — ¿Por qué la cadena vacía no debería considerarse un conjunto de dígitos decimales? Pensalo desde la especificación matemática.
 
-> R:
+> R: Según la especificación matemática, AreDecimalDigits(ε) = 0. Una cadena vacía no contiene ningún carácter, por lo que carece de al menos un dígito dentro del rango '0'..'9'. Si devolviera 1, estaríamos afirmando que la nada es un número válido, lo cual rompería las conversiones numéricas posteriores (por ejemplo, ToInteger("") no tendría dígitos que interpretar).
 
 #### Corrección
 
@@ -425,7 +427,7 @@ make test
 ```
 
 ```
-AREDECIMALDIGITS_PASA=
+AREDECIMALDIGITS_PASA=SI
 ```
 _(escribí SI cuando todos los tests de AreDecimalDigits pasen)_
 
@@ -467,7 +469,7 @@ Antes de implementar, discutí con tu equipo:
 
 **P6** — Conclusión de la discusión:
 
-> R:
+> R: Sí, para respetar la responsabilidad única. String maneja secuencias de caracteres y Conversion traduce tipos de datos.
 
 ---
 
@@ -494,7 +496,7 @@ int ToInteger(const char *s) {
 
 **P7** — El loop acumula correctamente el valor en `resultado`. ¿Qué está mal en el `return`?
 
-> R:
+> R: Retorna signo (1 o -1) en lugar del valor acumulado signo * resultado
 
 #### Corrección
 
@@ -506,10 +508,10 @@ make test
 
 **P8** — La expresión `*s - '0'` convierte un carácter dígito al entero correspondiente. ¿Por qué funciona? ¿Qué devuelve `'3' - '0'`?
 
-> R:
+> R: Funciona porque los dígitos ASCII son correlativos. '3' - '0' realiza 51 - 48 y devuelve el entero 3
 
 ```
-TOINTEGER_PASA=
+TOINTEGER_PASA=SI
 ```
 _(escribí SI cuando todos los tests de ToInteger pasen)_
 
@@ -562,7 +564,7 @@ foo
 
 **P9** — ¿Por qué `(void)argc` suprime un warning? ¿Cuándo sería necesario usar `argc`?
 
-> R:
+> R: (void)argc le indica al compilador que la variable no se va a usar, evitando el aviso de unused parameter. Sería necesario usar argc si necesitáramos validar de antemano la cantidad de argumentos recibidos (por ejemplo, exigir un mínimo).
 
 ---
 
@@ -589,7 +591,7 @@ Salida esperada:
 ```
 
 ```
-LONGITUDES_PASA=
+LONGITUDES_PASA=SI
 ```
 _(SI o NO)_
 
@@ -616,7 +618,7 @@ make mayorlongitud
 ```
 
 ```
-MAYORLONGITUD_PASA=
+MAYORLONGITUD_PASA=SI
 ```
 _(SI o NO)_
 
@@ -635,7 +637,7 @@ make todosiguales
 ```
 
 ```
-TODOSIGUALES_PASA=
+TODOSIGUALES_PASA=SI
 ```
 _(SI o NO)_
 
@@ -652,7 +654,7 @@ make suma
 ```
 
 ```
-SUMA_PASA=
+SUMA_PASA=SI
 ```
 _(SI o NO)_
 
@@ -662,15 +664,15 @@ _(SI o NO)_
 
 **P10** — `GetLength` es recursiva pero en C una llamada recursiva consume un stack frame. Si llamaras `GetLength` con un string de 1.000.000 de caracteres, ¿qué pasaría? ¿Cómo lo resolverías?
 
-> R:
+> R:Produciría un desbordamiento de pila (stack overflow) por agotar la memoria asignada al stack con tantas llamadas en cadena. Se resolvería reemplazando la recursión por una implementación iterativa usando un bucle (while o for)
 
 **P11** — En la Parte III, todos los programas usan `char **arg` para iterar en vez de un índice entero. ¿Qué ventaja tiene este estilo? ¿Cuándo sería preferible usar el índice?
 
-> R:
+> R:La ventaja es que la aritmética de punteros es idiomática en C y permite iterar directo hasta encontrar la centinela NULL sin depender de argc. Sería preferible usar un índice cuando se necesite acceso aleatorio (saltar a una posición específica) o cuando el índice numérico se utilice explícitamente en la lógica del programa
 
 **P12** — En C, `"hola"` es un literal de tipo `const char *`. Si intentaras modificar un carácter con `s[0] = 'H'`, el comportamiento es indefinido. ¿Por qué? ¿En qué parte de la memoria viven los literales?
 
-> R:
+> R:Porque los literales de cadena se almacenan en la memoria estática (sección de solo lectura como .rodata). Intentar modificar esa región provoca una violación de segmento (segmentation fault) impulsada por la protección del sistema operativo
 
 ---
 

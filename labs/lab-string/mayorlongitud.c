@@ -10,12 +10,17 @@
  *   largo
  */
 
+#include <stdio.h>
+#include "String.h"
+
 int main(int argc, char *argv[]) {
-    if (argc < 2) return 1;
+    if (argc < 2) return 0;
+    
     char *mayor = argv[1];
     for (char **arg = argv + 2; *arg != NULL; arg++)
         if (GetLength(*arg) > GetLength(mayor))
-            mayor = NULL; /* completar: ¿que deberia guardarse en mayor? */
+            mayor = *arg;
+            
     printf("%s\n", mayor);
     return 0;
 }
